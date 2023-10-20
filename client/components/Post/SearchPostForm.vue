@@ -3,6 +3,7 @@ import { ref } from "vue";
 
 const author = ref("");
 const emit = defineEmits(["getPostsByAuthor"]);
+
 </script>
 
 <template>
