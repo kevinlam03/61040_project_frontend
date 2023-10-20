@@ -1,7 +1,8 @@
-<script lang="ts" setup>
+<script setup lang="ts">
 
 import NotificationComponent from "@/components/Notification/NotificationComponent.vue"
 import { fetchy } from "@/utils/fetchy";
+
 import { onBeforeMount, ref } from "vue"
 
 let notifications = ref<Array<Record<string, string>>>([]);
