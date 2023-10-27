@@ -7,6 +7,9 @@ import LoginView from "../views/LoginView.vue";
 import NotFoundView from "../views/NotFoundView.vue";
 import SettingView from "../views/SettingView.vue";
 import NotificationView from "../views/NotificationView.vue"
+import PeopleView from "../views/PeopleView.vue"
+import FeedView from "../views/FeedView.vue"
+import ScreenTimeView from "../views/ScreenTimeView.vue"
 
 const router = createRouter({
   history: createWebHistory(),
@@ -38,6 +41,24 @@ const router = createRouter({
       path: "/notifications",
       name: "Notifications",
       component: NotificationView,
+      meta: { requiresAuth: true },
+    },
+    {
+      path: "/people",
+      name: "People",
+      component: PeopleView,
+      meta: { requiresAuth: true },
+    },
+    {
+      path: "/feed",
+      name: "Feed",
+      component: FeedView,
+      meta: { requiresAuth: true },
+    },
+    {
+      path: "/screenTime",
+      name: "ScreenTime",
+      component: ScreenTimeView,
       meta: { requiresAuth: true },
     },
     {

@@ -53,7 +53,7 @@ export default class FeedConcept {
 
     async starredStatus(user: ObjectId, target: ObjectId) {
         try {
-            this.canRemoveStar(user, target);
+            await this.canRemoveStar(user, target);
             return true
         } catch (e) {
             return false

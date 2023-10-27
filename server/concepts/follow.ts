@@ -33,6 +33,16 @@ export default class FollowConcept {
     });
   }
 
+  async getPendingSentRequests(user: ObjectId) {
+    return await this.requests.readMany({from: user, status:"pending"});
+  }
+
+  async getPendingReceivedRequests(user: ObjectId) {
+    return await this.requests.readMany({to: user, status:"pending"});
+  }
+
+
+
   // Monitor Relations will be able to send share requests to share usage data
   // Follow Relations will be able to send normal requests to view content
   // The sending is normal
@@ -90,6 +100,24 @@ export default class FollowConcept {
     // returning all relations with this user for now
     const relations = await this.relations.readMany({
       $or: [{ viewer: user }, { target: user }],
+    });
+
+    return relations
+  }
+
+  async getFollowingRelations(user: ObjectId) {
+    // returning all following relations from user
+    const relations = await this.relations.readMany({
+      viewer: user
+    });
+
+    return relations
+  }
+
+  async getFollowerRelations(user: ObjectId) {
+    // returning all follower relations from user
+    const relations = await this.relations.readMany({
+      target: user
     });
 
     return relations

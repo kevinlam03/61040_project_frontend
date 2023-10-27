@@ -148,7 +148,7 @@ class Routes {
     for (const feedDoc of feedDocs) {
       const cur_post = await Post.getPost(feedDoc.post);
       if (cur_post !== null) 
-        if (!await Feed.starredStatus(user_id, cur_post.author))
+        if (!(await Feed.starredStatus(user_id, cur_post.author)))
           feed.push(cur_post);
     }
 
@@ -177,13 +177,20 @@ class Routes {
     return await Feed.addStar(user_id, target_id);
   }
 
-  // not sure why the handler isn't being called...
   @Router.delete("/feed/stars/:target")
   async removeStar(session: WebSessionDoc, target: string) {
     const user_id = WebSession.getUser(session);
     const target_id = (await User.getUserByUsername(target))._id;
     return await Feed.removeStar(user_id, target_id);
   }
+
+  @Router.get("/feed/stars/:target/")
+  async checkStarStatus(session: WebSessionDoc, target: string) {
+    const user_id = WebSession.getUser(session);
+    const target_id = (await User.getUserByUsername(target))._id;
+    return await Feed.starredStatus(user_id, target_id);
+  }
+
 
   /////////////////////
   // FOLLOW
@@ -195,10 +202,30 @@ class Routes {
     return await Responses.relations(await Follow.getRelations(user));
   }
 
+  @Router.get("/follow/following")
+  async getFollowingRelations(session: WebSessionDoc) {
+    const user = WebSession.getUser(session);
+    // do some Response converting here?
+    return await Responses.relations(await Follow.getFollowingRelations(user));
+  }
+
+  @Router.get("/follow/followers")
+  async getFollowerRelations(session: WebSessionDoc) {
+    const user = WebSession.getUser(session);
+    // do some Response converting here?
+    return await Responses.relations(await Follow.getFollowerRelations(user));
+  }
+
   @Router.delete("/follow/following/:target")
   async stopFollowing(session: WebSessionDoc, target: string) {
     const user = WebSession.getUser(session);
     const targetId = (await User.getUserByUsername(target))._id;
+
+    // check if we have this person starred. If so, remove that star
+    if (await Feed.starredStatus(user, targetId)) {
+      await Feed.removeStar(user, targetId);
+    }
+    
     return await Follow.removeRelation(user, targetId);
   }
 
@@ -215,6 +242,19 @@ class Routes {
     const user = WebSession.getUser(session);
     return await Responses.relationRequests(await Follow.getRequests(user));
   }
+
+  @Router.get("/follow/requests/sent/pending")
+  async getPendingSentFollowRequests(session: WebSessionDoc) {
+    const user = WebSession.getUser(session);
+    return await Responses.relationRequests(await Follow.getPendingSentRequests(user));
+  }
+
+  @Router.get("/follow/requests/received/pending")
+  async getPendingReceivedFollowRequests(session: WebSessionDoc) {
+    const user = WebSession.getUser(session);
+    return await Responses.relationRequests(await Follow.getPendingReceivedRequests(user));
+  }
+  
 
   @Router.post("/follow/requests/:to")
   async sendFollowRequest(session: WebSessionDoc, to: string) {
