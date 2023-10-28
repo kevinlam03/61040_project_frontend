@@ -2,10 +2,8 @@
 
 import { onBeforeMount, ref } from "vue"
 
-export interface MenuOption {
-    name: "Following" | "Followers" | "Requests" | "Search"
-}
 
+let props = defineProps(["options"])
 let emit = defineEmits(["set-menu-option"])
 
 
@@ -18,7 +16,14 @@ onBeforeMount(() => {
 <template>
     <nav>
         <ul>
-            <li>
+            <li v-for="option in options">
+                <button @click="$emit('set-menu-option', {name:option.name})">
+                    {{ option.name }}
+                </button>
+            </li>
+
+            <!--
+                <li>
                 <button @click="$emit('set-menu-option', {name:'Following'})">Following</button>
             </li>
             <li>
@@ -29,7 +34,9 @@ onBeforeMount(() => {
             </li>
             <li>
                 <button @click="$emit('set-menu-option', {name:'Search'})">Search</button>
-            </li>            
+            </li>    
+            -->
+                    
         </ul>
     </nav>
     

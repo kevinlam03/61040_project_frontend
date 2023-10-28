@@ -11,6 +11,8 @@ import PeopleView from "../views/PeopleView.vue"
 import FeedView from "../views/FeedView.vue"
 import ScreenTimeView from "../views/ScreenTimeView.vue"
 
+
+
 const router = createRouter({
   history: createWebHistory(),
   routes: [

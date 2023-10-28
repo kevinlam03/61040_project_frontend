@@ -1,18 +1,21 @@
 <script lang="ts" setup>
 
-import SidebarComponent from "@/components/People/SidebarComponent.vue"
+import SidebarComponent from "@/components/General/SidebarComponent.vue"
 import FollowRelationListComponent from "@/components/People/FollowRelationListComponent.vue";
 import SearchPeopleComponent from "@/components/People/SearchPeopleComponent.vue";
 import RequestListComponent from "@/components/People/RequestListComponent.vue";
 
-import { MenuOption } from "@/components/People/SidebarComponent.vue"
 
 import { ref } from "vue";
 
-// need to remember current option to display
-let selectedOption = ref<MenuOption>({name:"Following"});
+interface PeopleViewMenuOptions {
+    name: "Following" | "Followers" | "Requests" | "Search"
+}
 
-const handleMenuOption = (option: MenuOption) => {
+// need to remember current option to display
+let selectedOption = ref<PeopleViewMenuOptions>({name:"Following"});
+
+const handleMenuOption = (option: PeopleViewMenuOptions) => {
     selectedOption.value = option;
 }
 
@@ -24,7 +27,9 @@ const handleMenuOption = (option: MenuOption) => {
     <div class="people-view">
         <nav>
             <h1>People</h1>
-            <SidebarComponent @set-menu-option="handleMenuOption"/>
+            <SidebarComponent @set-menu-option="handleMenuOption" :options="[
+                {name:'Following'}, {name:'Followers'}, {name:'Requests'}, {name:'Search'}
+            ]"/>
         </nav>
         
         <!---
