@@ -53,6 +53,12 @@ export default class FollowConcept {
     return { msg: "Sent request!" };
   }
 
+  async sendShareRequest(from: ObjectId, to: ObjectId) {
+    await this.canSendShareRequest(from, to);
+    await this.requests.createOne({ from, to, status: "pending" });
+    return { msg: "Sent request!" };
+  }
+
   // The accepting creates a relation in different ways
 
   async acceptRequest(from: ObjectId, to: ObjectId) {
@@ -69,7 +75,7 @@ export default class FollowConcept {
     await this.removePendingRequest(from, to);
     // Following two can be done in parallel, thus we use `void`
     void this.requests.createOne({ from, to, status: "accepted" });
-    void this.addFollowRelation(from, to);
+    void this.addFollowRelation(to, from);
     return { msg: "Accepted request!" };
   }
 
@@ -149,13 +155,25 @@ export default class FollowConcept {
     }
   }
   
+  private async canSendShareRequest(u1: ObjectId, u2: ObjectId) {
+    await this.isNotViewing(u2, u1);
+    // check if there is pending request between these users
+    const request = await this.requests.readOne({
+      from: u1,
+      to: u2,
+      status: "pending",
+    });
+    if (request !== null) {
+      throw new FollowRequestAlreadyExistsError(u1, u2);
+    }
+  }
 
   private async canSendRequest(u1: ObjectId, u2: ObjectId) {
     await this.isNotViewing(u1, u2);
     // check if there is pending request between these users
     const request = await this.requests.readOne({
-      from: { $in: [u1, u2] },
-      to: { $in: [u1, u2] },
+      from: u1,
+      to: u2,
       status: "pending",
     });
     if (request !== null) {
@@ -169,7 +187,7 @@ export class FollowRequestNotFoundError extends NotFoundError {
     public readonly from: ObjectId,
     public readonly to: ObjectId,
   ) {
-    super("Follow request from {0} to {1} does not exist!", from, to);
+    super("Request from {0} to {1} does not exist!", from, to);
   }
 }
 
@@ -178,7 +196,7 @@ export class FollowRequestAlreadyExistsError extends NotAllowedError {
     public readonly from: ObjectId,
     public readonly to: ObjectId,
   ) {
-    super("Follow request between {0} and {1} already exists!", from, to);
+    super("Request between {0} and {1} already exists!", from, to);
   }
 }
 
@@ -196,6 +214,6 @@ export class RelationAlreadyExistsError extends NotAllowedError {
     public readonly viewer: ObjectId,
     public readonly target: ObjectId,
   ) {
-    super("{viewer} is already viewing {target}. The relation already exists!", viewer, target);
+    super("{0} is already viewing {1}. The relation already exists!", viewer, target);
   }
 }

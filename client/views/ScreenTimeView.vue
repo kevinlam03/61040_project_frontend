@@ -1,20 +1,45 @@
 <script setup lang="ts">
 
-import { ref } from 'vue';
+import { onBeforeMount, ref } from 'vue';
+import { fetchy } from "@/utils/fetchy"
 
+import RequestListComponent from '@/components/ScreenTime/RequestListComponent.vue';
 import SidebarComponent from '@/components/General/SidebarComponent.vue';
 import ScreenTimeDataComponent from '@/components/ScreenTime/ScreenTimeDataComponent.vue';
+import { useUserStore } from '@/stores/user';
+import { storeToRefs } from 'pinia';
+
+const { currentUsername } = storeToRefs(useUserStore());
+
+
 
 interface ScreenTimeViewMenuOptions {
-    name: "My ScreenTime" | "Others" | "Manage Restrictions"
+    name: "My ScreenTime" | "Others" | "Manage Restrictions" | "Manage ScreenTime Sharing"
 }
 
 // need to remember current option to display
 let selectedOption = ref<ScreenTimeViewMenuOptions>({name:"My ScreenTime"});
 
-const handleMenuOption = (option: ScreenTimeViewMenuOptions) => {
+const handleMenuOption = async (option: ScreenTimeViewMenuOptions) => {
+    if (option.name==='Others') {
+        await getMonitoringList();
+    }
     selectedOption.value = option;
+    
 }
+
+const monitoringList = ref<Array<string>>([]);
+const getMonitoringList = async () => {
+    let res;
+    try {
+        res = await fetchy("/api/monitorRelations/monitoring", "GET")
+    } catch (error) {
+        return;
+    }
+    const listNames = res.map((relation: any) => { return relation.target })
+    monitoringList.value = listNames;
+}
+
 
 
 </script>
@@ -23,13 +48,27 @@ const handleMenuOption = (option: ScreenTimeViewMenuOptions) => {
     <div class="screentime-view">
         <nav>
             <SidebarComponent @set-menu-option="handleMenuOption" :options="[
-                {name:'My ScreenTime'}, {name:'Others'}, {name:'Manage Restrictions'}]"
+                {name:'My ScreenTime'}, 
+                {name:'Others'}, 
+                {name:'Manage Restrictions'},
+                {name:'Manage ScreenTime Sharing'},
+            ]"
             />
         </nav>
         
 
         <main>
-            <ScreenTimeDataComponent v-if="selectedOption.name==='My ScreenTime'"/>
+            <ScreenTimeDataComponent 
+            v-if="selectedOption.name==='My ScreenTime'" 
+            :username="currentUsername"/>
+
+            <ScreenTimeDataComponent
+            v-if="selectedOption.name === 'Others'"
+            v-for="user in monitoringList"
+            :username="user"
+            />
+
+            <RequestListComponent v-if="selectedOption.name === 'Manage ScreenTime Sharing'"/>
         </main>
     </div>
 

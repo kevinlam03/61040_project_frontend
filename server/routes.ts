@@ -340,6 +340,18 @@ class Routes {
     return await Responses.relationRequests(await Monitor.getRequests(user));
   }
 
+  @Router.get("/monitorRelations/requests/sent/pending")
+  async getPendingSentMonitorRequests(session: WebSessionDoc) {
+    const user = WebSession.getUser(session);
+    return await Responses.relationRequests(await Monitor.getPendingSentRequests(user));
+  }
+
+  @Router.get("/monitorRelations/requests/received/pending")
+  async getPendingReceivedMonitorFollowRequests(session: WebSessionDoc) {
+    const user = WebSession.getUser(session);
+    return await Responses.relationRequests(await Monitor.getPendingReceivedRequests(user));
+  }
+
   @Router.post("/monitorRelations/requests/:to")
   async sendMonitorRequest(session: WebSessionDoc, to: string) {
     const user = WebSession.getUser(session);
@@ -349,7 +361,7 @@ class Routes {
       throw new BadValuesError("You can't send a request to yourself!")
     }
 
-    return await Monitor.sendRequest(user, toId);
+    return await Monitor.sendShareRequest(user, toId);
   }
 
   @Router.delete("/monitorRelations/requests/:to")
@@ -377,10 +389,16 @@ class Routes {
   }
 
 
-  @Router.get("/monitorRelations")
-  async getMonitorRelations(session: WebSessionDoc) {
+  @Router.get("/monitorRelations/monitoring")
+  async getMonitoringList(session: WebSessionDoc) {
     const curr_user = WebSession.getUser(session);
-    return await Responses.relations(await Monitor.getRelations(curr_user));
+    return await Responses.relations(await Monitor.getFollowingRelations(curr_user));
+  }
+
+  @Router.get("/monitorRelations/monitored")
+  async getMonitoredList(session: WebSessionDoc) {
+    const curr_user = WebSession.getUser(session);
+    return await Responses.relations(await Monitor.getFollowerRelations(curr_user));
   }
 
   @Router.delete("/monitorRelations/monitoring/:target")

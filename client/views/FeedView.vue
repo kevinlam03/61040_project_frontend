@@ -46,7 +46,7 @@ const initializeScreenTimeTracking = async (username: string, feature: string) =
 
     // save so we can stop updating data when we exit later
     clearIntervalReference = setInterval(async () => {
-        await timeStore.updateCurrentScreenTimeData(username, feature, currentScreenTimeData.value[feature] + 60000)
+        await timeStore.updateCurrentScreenTimeData(username, feature, currentScreenTimeData.value[feature] + 20000)
     }, 20000);
 }
 

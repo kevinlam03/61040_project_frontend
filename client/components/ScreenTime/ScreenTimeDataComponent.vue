@@ -1,28 +1,49 @@
 <script setup lang="ts">
 
 import { fetchy } from "@/utils/fetchy"
-import { ref } from "vue"
+import { onBeforeMount, onMounted, ref } from "vue"
 
+const props = defineProps(["username"])
+const screenTimeData = ref<Record<string, number>>({});
 
-const screenTimeData = ref<Array<Record<string, string>>>([]);
+const getScreenTimeData = async (username: string) => {
+    let res: Record<string, number> = {};
+    const date = new Date();
+    const [day, month, year] = [
+        date.getDate().toString(), 
+        (date.getMonth()+1).toString(), 
+        date.getFullYear().toString()
+    ];
 
-
-// need to get data for past week or something?
-const getScreenTimeData = async () => {
-    let res;
     try {
-        res = await fetchy("/api/screenTime", "GET")
+        for (const feature of ["Home", "Feed", "People"]) {
+            const timeObj = await fetchy("/api/screenTime/" + username + "/" + feature, "GET", {
+                query: {day, month, year}
+            });   
+            res[feature] = timeObj.time
+        }
     } catch (error) {
-        return;
+        return {"Home": 69, "Feed": 69, "People": 69};
     }
-    screenTimeData.value = res;
+    screenTimeData.value = res
 }
+
+onBeforeMount(async () => {
+    await getScreenTimeData(props.username);
+})
+
+
 
 </script>
 
 <template>
     <div class="screentime-data">
-        {{ screenTimeData }}
+        <h2> username: {{ username }}</h2>
+        <section v-if="username">
+            <p v-for="feature in ['Home', 'Feed', 'People']">
+                {{ feature }}: {{ screenTimeData[feature] / 60000 }}
+            </p>
+        </section>
     </div>
 </template>
 

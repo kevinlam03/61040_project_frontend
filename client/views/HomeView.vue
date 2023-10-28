@@ -22,7 +22,7 @@ const initializeScreenTimeTracking = async (username: string, feature: string) =
 
   // save so we can stop updating data when we exit later
   clearIntervalReference = setInterval(async () => {
-    await timeStore.updateCurrentScreenTimeData(username, feature, currentScreenTimeData.value[feature] + 60000)
+    await timeStore.updateCurrentScreenTimeData(username, feature, currentScreenTimeData.value[feature] + 20000)
   }, 20000);
 }
 
@@ -36,11 +36,16 @@ const endScreenTimeTracking = async (username: string) => {
 }
 
 onMounted(async () => {
-  await initializeScreenTimeTracking(currentUsername.value, "Home");
+  if (isLoggedIn) {
+    await initializeScreenTimeTracking(currentUsername.value, "Home");
+  }
+  
 });
 
 onUnmounted( async () => {
-  await endScreenTimeTracking(currentUsername.value);
+  if (isLoggedIn) {
+    await endScreenTimeTracking(currentUsername.value);
+  }
 });
 
 
