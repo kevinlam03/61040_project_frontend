@@ -22,7 +22,7 @@ export default class ScreenTimeConcept {
     static getDayMonthYear(date: Date) {
         return {
             day: date.getDate(),
-            month: date.getMonth(),
+            month: date.getMonth()+1,
             year: date.getFullYear() 
         }
     }
@@ -68,12 +68,16 @@ export default class ScreenTimeConcept {
             }
         );
 
-        return { msg: "Updated screenTime!"}
+        return { msg: "Updated screenTime!", time: time}
 
     }
     
     async getTimeUsed(user: ObjectId, feature: Feature, date: {day: number, month: number, year: number}) {
-        await this.dataExists(user, feature, date);
+        try {
+            await this.dataExists(user, feature, date);  
+        } catch(ScreenTimeDataNotFoundError) {
+            return {time: 0};
+        }
 
         const res = await this.screenTime.readOne({
             user, 
@@ -87,12 +91,11 @@ export default class ScreenTimeConcept {
             throw new Error("This shouldn't happen.");
         }
 
-        return res.timeUsed
+        return {time: res.timeUsed}
     }
 
     // always fails, always making new document right now
     async dataExists(user: ObjectId, feature: Feature, date: {day: number, month: number, year: number}) {
-        console.log(feature.name, date);
         const res = await this.screenTime.readOne({
             user, 
             feature: { name: feature.name},

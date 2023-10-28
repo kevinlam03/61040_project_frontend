@@ -4,21 +4,43 @@ import PostListComponent from "@/components/Post/PostListComponent.vue";
 import { useUserStore } from "@/stores/user";
 import { useScreenTimeStore } from "@/stores/screentime";
 import { storeToRefs } from "pinia";
-import { initializeScreenTimeTracking, endScreenTimeTracking } from "@/utils/timeTrack";
-import { onUnmounted, onMounted } from "vue";
+import { onUnmounted, onMounted, toRefs, onBeforeMount } from "vue";
+import { fetchy } from "@/utils/fetchy"
 
-console.log(useScreenTimeStore().currentScreenTimeData);
 const { currentUsername, isLoggedIn } = storeToRefs(useUserStore());
-//const { currentScreenTimeData } = storeToRefs(useScreenTimeStore());
+const { currentScreenTimeData } = storeToRefs(useScreenTimeStore());
 
 
+const timeStore = useScreenTimeStore();
+var clearIntervalReference: NodeJS.Timeout;
+
+/*
+  Before entering a page, we need to start tracking the screenTime for this feature
+*/
+const initializeScreenTimeTracking = async (username: string, feature: string) => {
+  await timeStore.requestScreenTimeData(username, feature);
+
+  // save so we can stop updating data when we exit later
+  clearIntervalReference = setInterval(async () => {
+    await timeStore.updateCurrentScreenTimeData(username, feature, currentScreenTimeData.value[feature] + 60000)
+  }, 20000);
+}
+
+/*
+  Before exiting a page, we need to send updates to the api, and stop tracking time
+  for this feature.
+*/
+const endScreenTimeTracking = async (username: string) => {
+  clearInterval(clearIntervalReference);
+  await timeStore.updateScreenTimeData(username);
+}
 
 onMounted(async () => {
-  //await initializeScreenTimeTracking("Home");
+  await initializeScreenTimeTracking(currentUsername.value, "Home");
 });
 
 onUnmounted( async () => {
-  //await endScreenTimeTracking();
+  await endScreenTimeTracking(currentUsername.value);
 });
 
 

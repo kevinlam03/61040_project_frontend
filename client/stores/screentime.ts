@@ -1,9 +1,7 @@
 import { fetchy } from "@/utils/fetchy";
 import { defineStore, storeToRefs } from "pinia";
 import { ref } from "vue";
-import { useUserStore } from "./user";
 
-const { currentUsername } = storeToRefs(useUserStore())
 const features = [
     "People",
     "Feed",
@@ -25,25 +23,24 @@ export const useScreenTimeStore = defineStore(
         /*
             Periodically update the current data store
         */
-        const updateCurrentScreenTimeData = (feature: string, time: number) => {
+        const updateCurrentScreenTimeData = (username: string, feature: string, time: number) => {
             currentScreenTimeData.value[feature] += time
         } 
 
         // get today's screentime data for certain feature
-        const requestScreenTimeData = async (feature: string) => {
+        const requestScreenTimeData = async (username: string, feature: string) => {
             const date = new Date();
             const [day, month, year] = [
-                date.getDay().toString(), 
-                date.getMonth().toString(), 
+                date.getDate().toString(), 
+                (date.getMonth()+1).toString(), 
                 date.getFullYear().toString()
             ];
-            const username = currentUsername.value;
 
             const res = await fetchy("/api/screenTime/" + username + "/" + feature, "GET", {
                 query: {day, month, year}
             });
 
-            screenTimeData.value[feature] = res.timeUsed
+            screenTimeData.value[feature] = res.time
             currentScreenTimeData.value[feature] = 0
         }
 
@@ -51,15 +48,13 @@ export const useScreenTimeStore = defineStore(
             Push current accumulated store data to the backend. Reset accumulated store data.
             Doesn't work at midnight, maybe fix later...
         */
-        const updateScreenTimeData = async () => {
+        const updateScreenTimeData = async (username: string) => {
             const date = new Date();
             const [day, month, year] = [
-                date.getDay().toString(), 
-                date.getMonth().toString(), 
+                date.getDate().toString(), 
+                (date.getMonth()+1).toString(), 
                 date.getFullYear().toString()
             ];
-            const username = currentUsername.value;
-            
 
             // update all features
             for (const feature of features) {
@@ -70,7 +65,7 @@ export const useScreenTimeStore = defineStore(
                 });
 
                 // get new screentime data
-                await requestScreenTimeData(feature);
+                await requestScreenTimeData(username, feature);
             }
         }
 
@@ -80,7 +75,7 @@ export const useScreenTimeStore = defineStore(
             requestScreenTimeData,
             updateScreenTimeData,
 
-        }
+        };
     },
     { persist: true }
 );

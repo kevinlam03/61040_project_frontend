@@ -6,6 +6,7 @@ import { BodyT, fetchy } from "@/utils/fetchy";
 export const useUserStore = defineStore(
   "user",
   () => {
+    const testValue = ref("test")
     const currentUsername = ref("");
 
     const isLoggedIn = computed(() => currentUsername.value !== "");
@@ -50,6 +51,7 @@ export const useUserStore = defineStore(
     };
 
     return {
+      testValue,
       currentUsername,
       isLoggedIn,
       createUser,

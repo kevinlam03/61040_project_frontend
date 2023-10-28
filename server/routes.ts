@@ -169,7 +169,6 @@ class Routes {
 
   @Router.post("/feed/stars/:target")
   async addStar(session: WebSessionDoc, target: string) {
-    console.log("addstar")
     const user_id = WebSession.getUser(session);
     const target_id = (await User.getUserByUsername(target))._id;
     // to add a star, you must be following them
@@ -412,7 +411,7 @@ class Routes {
     await Monitor.isViewing(user, target_id);
 
     console.log(day, month, year)
-    return await ScreenTime.getTimeUsed(
+    let res = await ScreenTime.getTimeUsed(
       target_id, 
       { name:feature }, 
       {
@@ -421,12 +420,13 @@ class Routes {
         year: parseInt(year)
       }
     );
+    console.log(res)
+    return res
   }
 
   @Router.post("/screenTime/:username/:feature")
   async setTimedUsed(username: string, feature: string, time: string, day: string, month: string, year: string) {
     // set timeUsed for user for specified feature
-    console.log("Entered settime")
     const user_id = (await User.getUserByUsername(username))._id;
     return await ScreenTime.setTimeUsed(
       user_id, 
@@ -470,16 +470,16 @@ class Routes {
     const user_id = WebSession.getUser(session);
     // check timeUsed for that restriction
     const date = new Date()
-    const time = await ScreenTime.getTimeUsed(
+    const res = await ScreenTime.getTimeUsed(
       user_id,
       { name: feature }, 
       { 
-        day: date.getDay(),
-        month: date.getMonth(),
+        day: date.getDate(),
+        month: date.getMonth()+1,
         year: date.getFullYear(),
       }
     );
-    return await TimeRestriction.restrictionExceeded(user_id, { name: feature }, time);
+    return await TimeRestriction.restrictionExceeded(user_id, { name: feature }, res.time);
   }
 
 

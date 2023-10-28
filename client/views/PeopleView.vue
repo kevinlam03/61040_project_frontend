@@ -7,6 +7,10 @@ import RequestListComponent from "@/components/People/RequestListComponent.vue";
 
 
 import { ref } from "vue";
+import { useScreenTimeStore } from "@/stores/screentime";
+import { useUserStore } from "@/stores/user";
+import { onUnmounted, onMounted } from "vue";
+import { storeToRefs } from "pinia";
 
 interface PeopleViewMenuOptions {
     name: "Following" | "Followers" | "Requests" | "Search"
@@ -19,6 +23,40 @@ const handleMenuOption = (option: PeopleViewMenuOptions) => {
     selectedOption.value = option;
 }
 
+
+const { currentUsername, isLoggedIn } = storeToRefs(useUserStore());
+const { currentScreenTimeData } = storeToRefs(useScreenTimeStore());
+const timeStore = useScreenTimeStore();
+var clearIntervalReference: NodeJS.Timeout;
+
+/*
+  Before entering a page, we need to start tracking the screenTime for this feature
+*/
+const initializeScreenTimeTracking = async (username: string, feature: string) => {
+    await timeStore.requestScreenTimeData(username, feature);
+
+    // save so we can stop updating data when we exit later
+    clearIntervalReference = setInterval(async () => {
+        await timeStore.updateCurrentScreenTimeData(username, feature, currentScreenTimeData.value[feature] + 60000)
+    }, 20000);
+}
+
+/*
+  Before exiting a page, we need to send updates to the api, and stop tracking time
+  for this feature.
+*/
+const endScreenTimeTracking = async (username: string) => {
+    clearInterval(clearIntervalReference);
+    await timeStore.updateScreenTimeData(username);
+}
+
+onMounted(async () => {
+    await initializeScreenTimeTracking(currentUsername.value, "Feed");
+});
+
+onUnmounted( async () => {
+    await endScreenTimeTracking(currentUsername.value);
+});
 
 </script>
 
