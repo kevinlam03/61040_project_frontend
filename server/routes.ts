@@ -475,6 +475,13 @@ class Routes {
     return await TimeRestriction.removeRestriction(user_id, { name: feature });
   }
 
+  @Router.get("/restrictions/time/:feature")
+  async getRestriction(session: WebSessionDoc, feature: string) {
+    // check restriction for user for specified url
+    const user_id = WebSession.getUser(session);
+    return await TimeRestriction.getRestriction(user_id, { name: feature });
+  }
+
   @Router.get("/restrictions/:feature")
   async isRestricted(session: WebSessionDoc, feature: string) {
     // check restriction for user for specified url

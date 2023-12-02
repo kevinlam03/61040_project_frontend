@@ -1,5 +1,5 @@
-import DocCollection, { BaseDoc } from "../framework/doc";
 import { ObjectId } from "mongodb";
+import DocCollection, { BaseDoc } from "../framework/doc";
 import { BadValuesError, NotAllowedError, NotFoundError } from "./errors";
 
 export interface Feature {
@@ -20,6 +20,10 @@ export default class TimeRestrictionConcept {
         await this.canAddRestriction(user, feature);
         await this.restrictions.createOne({user, feature, limit})
         return { msg: "Added restriction!"}
+    }
+
+    async getRestriction(user: ObjectId, feature: Feature) {
+        return await this.restrictions.readOne({ user, feature });
     }
 
     async setRestriction(user: ObjectId, feature: Feature, limit: number) {
