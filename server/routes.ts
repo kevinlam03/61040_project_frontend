@@ -29,6 +29,7 @@ class Routes {
 
   @Router.get("/session")
   async getSessionUser(session: WebSessionDoc) {
+    console.log("Trying to get the session user: " + session.user);
     const user = WebSession.getUser(session);
     return await User.getUserById(user);
   }
@@ -66,6 +67,7 @@ class Routes {
   async logIn(session: WebSessionDoc, username: string, password: string) {
     const u = await User.authenticate(username, password);
     WebSession.start(session, u._id);
+    console.log("Started the session.");
     return { msg: "Logged in!" };
   }
 

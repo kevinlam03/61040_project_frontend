@@ -1,10 +1,9 @@
-import { useToastStore } from "../stores/toast";
 import { fetchy } from "./fetchy";
 
 // tracking timeUsed and restriction for this feature
 var timeUsed = 0;
 var restriction = 0;
-const toastStore = useToastStore();
+//const toastStore = useToastStore();
 
 export const getTimeUsed = () => {
   return timeUsed;
@@ -38,24 +37,24 @@ export const startTimeTracking = async (username: string, feature: string) => {
   timeUsed = await getScreenTimeData(username, feature);
   restriction = await getFeatureRestriction(feature);
 
-  if (timeUsed >= restriction) {
+  /* if (timeUsed >= restriction) {
     toastStore.showToast({
       message: "Time limit exceeded!",
       style: "error",
     })
-  }
+  } */
 
   const secondsDelay = 1
 
   return setInterval(() => {
     timeUsed += secondsDelay
 
-    if (timeUsed === restriction) {
+    /* if (timeUsed === restriction) {
       toastStore.showToast({
         message: "Time limit exceeded!",
         style: "error",
       })
-    }
+    } */
   }, secondsDelay * 1000);
 }
 

@@ -17,14 +17,19 @@ export default class WebSessionConcept {
   start(session: WebSessionDoc, user: ObjectId) {
     this.isLoggedOut(session);
     session.user = user.toString();
+    console.log("user:" + session.user);
+    console.log("cookie: " + session.cookie)
   }
 
   end(session: WebSessionDoc) {
     this.isLoggedIn(session);
+    console.log("Ending session for user: " + session.user)
     session.user = undefined;
+    
   }
 
   getUser(session: WebSessionDoc) {
+    console.log("Inside getUser" + session.cookie);
     this.isLoggedIn(session);
     return new ObjectId(session.user);
   }
