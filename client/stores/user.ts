@@ -30,10 +30,8 @@ export const useUserStore = defineStore(
     const updateSession = async () => {
       try {
         const { username } = await fetchy("/api/session", "GET", { alert: false });
-        console.log("This is the username from the fetch call: " + username)
         currentUsername.value = username;
       } catch {
-        console.log("Couldn't get the session.");
         currentUsername.value = "";
       }
     };

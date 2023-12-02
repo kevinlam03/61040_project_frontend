@@ -29,7 +29,6 @@ class Routes {
 
   @Router.get("/session")
   async getSessionUser(session: WebSessionDoc) {
-    console.log("Trying to get the session user: " + session.user);
     const user = WebSession.getUser(session);
     return await User.getUserById(user);
   }

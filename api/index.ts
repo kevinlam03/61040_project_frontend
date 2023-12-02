@@ -30,7 +30,6 @@ app.use(
     store: MongoStore.create({
       mongoUrl: process.env.MONGO_SRV,
     }),
-    cookie: { secure: true },
     name: 'A5 session'
   }),
 );
