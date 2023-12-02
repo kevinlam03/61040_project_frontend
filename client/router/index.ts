@@ -2,14 +2,14 @@ import { storeToRefs } from "pinia";
 import { createRouter, createWebHistory } from "vue-router";
 
 import { useUserStore } from "@/stores/user";
+import FeedView from "../views/FeedView.vue";
 import HomeView from "../views/HomeView.vue";
 import LoginView from "../views/LoginView.vue";
 import NotFoundView from "../views/NotFoundView.vue";
+import NotificationView from "../views/NotificationView.vue";
+import PeopleView from "../views/PeopleView.vue";
+import ScreenTimeView from "../views/ScreenTimeView.vue";
 import SettingView from "../views/SettingView.vue";
-import NotificationView from "../views/NotificationView.vue"
-import PeopleView from "../views/PeopleView.vue"
-import FeedView from "../views/FeedView.vue"
-import ScreenTimeView from "../views/ScreenTimeView.vue"
 
 
 
@@ -20,6 +20,7 @@ const router = createRouter({
       path: "/",
       name: "Home",
       component: HomeView,
+      meta: { requiresAuth: true }
     },
     {
       path: "/setting",

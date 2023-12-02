@@ -2,26 +2,31 @@ import { ObjectId } from "mongodb";
 
 import { Router, getExpressRouter } from "./framework/router";
 
-import { 
-  Follow, 
+import {
   Feed,
-  Post, 
-  User, 
-  WebSession, 
-  Notification, 
-  Monitor, 
+  Follow,
+  Monitor,
+  Notification,
+  Post,
   ScreenTime,
   TimeRestriction,
+  User,
+  WebSession,
 } from "./app";
 
 import { PostDoc, PostOptions } from "./concepts/post";
 
+import { BadValuesError } from "./concepts/errors";
 import { UserDoc } from "./concepts/user";
 import { WebSessionDoc } from "./concepts/websession";
 import Responses from "./responses";
-import { BadValuesError, NotAllowedError } from "./concepts/errors";
 
 class Routes {
+  @Router.post("/print") 
+  async printBody(info: string) {
+    console.log(info)
+  }
+
   @Router.get("/session")
   async getSessionUser(session: WebSessionDoc) {
     const user = WebSession.getUser(session);
@@ -421,39 +426,27 @@ class Routes {
   // SCREENTIME
   /////////////////////
   @Router.get("/screenTime/:username/:feature")
-  async getTimedUsed(session: WebSessionDoc, username: string, feature: string, day: string, month: string, year: string) {
+  async getTimedUsed(session: WebSessionDoc, username: string, feature: string) {
     // get timeUsed for user, make sure current session is a monitor or self
     const target_id = (await User.getUserByUsername(username))._id;
     const user = WebSession.getUser(session);
 
     await Monitor.isViewing(user, target_id);
 
-    console.log(day, month, year)
     let res = await ScreenTime.getTimeUsed(
       target_id, 
       { name:feature }, 
-      {
-        day: parseInt(day), 
-        month: parseInt(month), 
-        year: parseInt(year)
-      }
     );
-    console.log(res)
     return res
   }
 
   @Router.post("/screenTime/:username/:feature")
-  async setTimedUsed(username: string, feature: string, time: string, day: string, month: string, year: string) {
+  async setTimedUsed(username: string, feature: string, time: string) {
     // set timeUsed for user for specified feature
     const user_id = (await User.getUserByUsername(username))._id;
     return await ScreenTime.setTimeUsed(
       user_id, 
-      { name: feature }, 
-      {
-        day: parseInt(day), 
-        month: parseInt(month), 
-        year: parseInt(year)
-      },
+      { name: feature },
       Number(time),
     );
   }
@@ -487,15 +480,9 @@ class Routes {
     // check restriction for user for specified url
     const user_id = WebSession.getUser(session);
     // check timeUsed for that restriction
-    const date = new Date()
     const res = await ScreenTime.getTimeUsed(
       user_id,
-      { name: feature }, 
-      { 
-        day: date.getDate(),
-        month: date.getMonth()+1,
-        year: date.getFullYear(),
-      }
+      { name: feature }
     );
     return await TimeRestriction.restrictionExceeded(user_id, { name: feature }, res.time);
   }

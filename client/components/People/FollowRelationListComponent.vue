@@ -10,6 +10,28 @@ let props = defineProps(["following"]);
 let followingRelations = ref<Array<Record<string, string>>>([]);
 let followerRelations = ref<Array<Record<string, string>>>([]);
 
+const stopFollowing = async (target: string) => {
+    let res;
+    try {
+        res = await fetchy("/api/follow/following/" + target, "DELETE")
+    } catch (_) {
+        return;
+    }
+    await getFollowingRelations();
+}
+
+const removeFollower = async (target: string) => {
+    let res;
+    try {
+        res = await fetchy("/api/follow/followers/" + target, "DELETE")
+    } catch (_) {
+        return;
+    }
+    await getFollowerRelations();
+}
+
+
+
 // get all people we're following
 const getFollowingRelations = async () => {
     let result;
@@ -49,7 +71,11 @@ onBeforeMount(async () => {
         <h2 v-if="props.following">Following</h2>
         
         <article v-for="relation in followingRelations">
-            <FollowRelationComponent :following="true" :relation="relation" :key="relation._id"/>
+            <FollowRelationComponent 
+                @stopFollowing="stopFollowing"
+                :following="true" 
+                :relation="relation" 
+                :key="relation._id"/>
         </article>
     </section>
 
@@ -57,7 +83,11 @@ onBeforeMount(async () => {
         <h2>Followers</h2>
         
         <article v-for="relation in followerRelations">
-            <FollowRelationComponent :following="false" :relation="relation" :key="relation._id"/>
+            <FollowRelationComponent 
+            @stopFollowing="removeFollower"
+            :following="false" 
+            :relation="relation" 
+            :key="relation._id"/>
         </article>
     </section>
     

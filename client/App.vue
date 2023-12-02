@@ -9,17 +9,14 @@ import { RouterLink, RouterView, useRoute } from "vue-router";
 const currentRoute = useRoute();
 const currentRouteName = computed(() => currentRoute.name);
 const userStore = useUserStore();
+
 const { isLoggedIn } = storeToRefs(userStore);
 const { toast } = storeToRefs(useToastStore());
 
 
 // Make sure to update the session before mounting the app in case the user is already logged in
 onBeforeMount(async () => {
-  try {
-    await userStore.updateSession();
-  } catch {
-    // User is not logged in
-  }
+  
 });
 </script>
 
@@ -29,30 +26,58 @@ onBeforeMount(async () => {
       <div class="title">
         <img src="@/assets/images/logo.svg" />
         <RouterLink :to="{ name: 'Home' }">
-          <h1>Social Media App</h1>
+          <h1>QuickTime</h1>
         </RouterLink>
       </div>
       <ul>
-        <li>
-          <RouterLink :to="{ name: 'ScreenTime' }" :class="{ underline: currentRouteName == 'ScreenTime' }"> ScreenTime </RouterLink>
-        </li>
-        <li>
-          <RouterLink :to="{ name: 'Feed' }" :class="{ underline: currentRouteName == 'Feed' }"> Feed </RouterLink>
-        </li>
-        <li>
-          <RouterLink :to="{ name: 'People' }" :class="{ underline: currentRouteName == 'People' }"> People </RouterLink>
-        </li>
-        <li>
-          <RouterLink :to="{ name: 'Home' }" :class="{ underline: currentRouteName == 'Home' }"> Home </RouterLink>
+        <li v-if="isLoggedIn">
+          <RouterLink 
+            :to="{ name: 'ScreenTime' }" 
+            :class="{ underline: currentRouteName == 'ScreenTime' }"> 
+            ScreenTime 
+          </RouterLink>
         </li>
         <li v-if="isLoggedIn">
-          <RouterLink :to="{ name: 'Settings' }" :class="{ underline: currentRouteName == 'Settings' }"> Settings </RouterLink>
+          <RouterLink 
+            :to="{ name: 'Feed' }" 
+            :class="{ underline: currentRouteName == 'Feed' }"> 
+            Feed 0m 0s
+          </RouterLink>
         </li>
         <li v-if="isLoggedIn">
-          <RouterLink :to="{ name: 'Notifications' }" :class="{ underline: currentRouteName == 'Notifications' }"> Notifications </RouterLink>
+          <RouterLink 
+            :to="{ name: 'People' }" 
+            :class="{ underline: currentRouteName == 'People' }"> 
+              People 0m 0s
+            </RouterLink>
+        </li>
+        <li v-if="isLoggedIn">
+          <RouterLink 
+            :to="{ name: 'Home' }" 
+            :class="{ underline: currentRouteName == 'Home' }"> 
+              Home 0m 0s
+          </RouterLink>
+        </li>
+        <li v-if="isLoggedIn">
+          <RouterLink 
+            :to="{ name: 'Settings' }" 
+            :class="{ underline: currentRouteName == 'Settings' }"> 
+              Settings 
+          </RouterLink>
+        </li>
+        <li v-if="isLoggedIn">
+          <RouterLink 
+            :to="{ name: 'Notifications' }" 
+            :class="{ underline: currentRouteName == 'Notifications' }"> 
+              Notifications 
+          </RouterLink>
         </li>
         <li v-else>
-          <RouterLink :to="{ name: 'Login' }" :class="{ underline: currentRouteName == 'Login' }"> Login </RouterLink>
+          <RouterLink 
+            :to="{ name: 'Login' }" 
+            :class="{ underline: currentRouteName == 'Login' }"> 
+              Login 
+          </RouterLink>
         </li>
       </ul>
     </nav>

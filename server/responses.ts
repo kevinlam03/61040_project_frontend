@@ -1,35 +1,35 @@
 import { User } from "./app";
 
+import {
+  FollowRelationDoc,
+  FollowRequestAlreadyExistsError,
+  FollowRequestDoc,
+  FollowRequestNotFoundError,
+  RelationAlreadyExistsError,
+  RelationNotFoundError
+} from "./concepts/follow";
 import { PostAuthorNotMatchError, PostDoc } from "./concepts/post";
 import { Router } from "./framework/router";
-import { 
-  FollowRelationDoc, 
-  FollowRequestAlreadyExistsError, 
-  FollowRequestDoc, 
-  FollowRequestNotFoundError, 
-  RelationAlreadyExistsError, 
-  RelationNotFoundError 
-} from "./concepts/follow";
 
 import {
-  StarredDoc,
-  StarredUserNotFoundError,
   AlreadyStarredUserError,
   PostInFeedAlreadyExistsError,
-  PostNotFoundInFeedError
+  PostNotFoundInFeedError,
+  StarredDoc,
+  StarredUserNotFoundError
 } from "./concepts/feed";
 
 import {
-  ScreenTimeDataNotFoundError 
+  ScreenTimeDataNotFoundError
 } from "./concepts/screenTime";
 
 import {
-  TimeRestrictionNotFoundError,
-  TimeRestrictionAlreadyExistsError 
+  TimeRestrictionAlreadyExistsError,
+  TimeRestrictionNotFoundError
 } from "./concepts/timeRestrictions";
 
-import { 
-  NotificationDoc 
+import {
+  NotificationDoc
 } from "./concepts/notification";
 
 /**
@@ -147,8 +147,7 @@ Router.registerError(PostNotFoundInFeedError, async (e) => {
 
 Router.registerError(ScreenTimeDataNotFoundError, async (e) => {
   const user = await User.getUserById(e.user);
-  const dateString = e.date.month.toString() + "/" + e.date.day.toString() + "/" + e.date.year.toString()
-  return e.formatWith(user.username, dateString);
+  return e.formatWith(user.username);
 });
 
 // TIMERESTRICTION

@@ -1,16 +1,14 @@
 <script lang="ts" setup>
 
-import SidebarComponent from "@/components/General/SidebarComponent.vue"
+import SidebarComponent from "@/components/General/SidebarComponent.vue";
 import FollowRelationListComponent from "@/components/People/FollowRelationListComponent.vue";
-import SearchPeopleComponent from "@/components/People/SearchPeopleComponent.vue";
 import RequestListComponent from "@/components/People/RequestListComponent.vue";
+import SearchPeopleComponent from "@/components/People/SearchPeopleComponent.vue";
 
 
-import { ref } from "vue";
-import { useScreenTimeStore } from "@/stores/screentime";
 import { useUserStore } from "@/stores/user";
-import { onUnmounted, onMounted } from "vue";
 import { storeToRefs } from "pinia";
+import { onMounted, onUnmounted, ref } from "vue";
 
 interface PeopleViewMenuOptions {
     name: "Following" | "Followers" | "Requests" | "Search"
@@ -25,20 +23,13 @@ const handleMenuOption = (option: PeopleViewMenuOptions) => {
 
 
 const { currentUsername, isLoggedIn } = storeToRefs(useUserStore());
-const { currentScreenTimeData } = storeToRefs(useScreenTimeStore());
-const timeStore = useScreenTimeStore();
 var clearIntervalReference: NodeJS.Timeout;
 
 /*
   Before entering a page, we need to start tracking the screenTime for this feature
 */
 const initializeScreenTimeTracking = async (username: string, feature: string) => {
-    await timeStore.requestScreenTimeData(username, feature);
-
-    // save so we can stop updating data when we exit later
-    clearIntervalReference = setInterval(async () => {
-        await timeStore.updateCurrentScreenTimeData(username, feature, currentScreenTimeData.value[feature] + 20000)
-    }, 20000);
+    
 }
 
 /*
@@ -46,8 +37,7 @@ const initializeScreenTimeTracking = async (username: string, feature: string) =
   for this feature.
 */
 const endScreenTimeTracking = async (username: string) => {
-    clearInterval(clearIntervalReference);
-    await timeStore.updateScreenTimeData(username);
+   
 }
 
 onMounted(async () => {
