@@ -4,17 +4,29 @@ import PostListComponent from "@/components/Post/PostListComponent.vue";
 import { useUserStore } from "@/stores/user";
 import { storeToRefs } from "pinia";
 import { onMounted, onUnmounted } from "vue";
-import { endTimeTracking, startTimeTracking } from "../utils/trackTime";
+import { useTimeStore } from "../stores/timeTrack";
 
+const { startTimeTracking, endTimeTracking } = useTimeStore();
 const { currentUsername, isLoggedIn } = storeToRefs(useUserStore());
+
 let interval: NodeJS.Timeout;
 
 onMounted(async () => {
-  interval = await startTimeTracking(currentUsername.value, "Home");  
+  try {
+    interval = await startTimeTracking(currentUsername.value, "Home");  
+  } catch (e) {
+    console.log(e);
+  }
+  
 });
 
 onUnmounted( async () => {
-  await endTimeTracking(interval, currentUsername.value, "Home");
+  try {
+    await endTimeTracking(interval, currentUsername.value, "Home");
+  } catch (e) {
+    console.log(e);
+  }
+  
 });
 
 

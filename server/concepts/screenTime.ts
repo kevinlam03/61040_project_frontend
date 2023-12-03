@@ -39,11 +39,11 @@ export default class ScreenTimeConcept {
     }
     
     async getTimeUsed(user: ObjectId, feature: string) {
-        try {
+        /* try {
             await this.dataExists(user, feature);  
         } catch(ScreenTimeDataNotFoundError) {
             return {time: 0};
-        }
+        } */
 
         const res = await this.screenTime.readOne({
             user, 
@@ -51,10 +51,11 @@ export default class ScreenTimeConcept {
         });
 
         if (res === null) {
-            throw new Error("This shouldn't happen.");
+            await this.setTimeUsed(user, feature, 0)
+            return 0
         }
 
-        return {time: res.timeUsed}
+        return res.timeUsed
     }
 
     // always fails, always making new document right now

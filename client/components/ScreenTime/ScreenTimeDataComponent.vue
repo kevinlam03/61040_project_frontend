@@ -2,20 +2,18 @@
 
 import { fetchy } from "@/utils/fetchy";
 import { onBeforeMount, ref } from "vue";
-
+import { convertTime } from "../../utils/convertTime";
 
 const props = defineProps(["username"]);
 const screenTimeData = ref<Record<string, number>>({});
- 
+
 const getScreenTimeData = async (username: string) => {
     let res: Record<string, number> = {};
 
     try {
         for (const feature of ["Home", "Feed", "People"]) {
-            const timeObj = await fetchy("/api/screenTime/" + username + "/" + feature, "GET", {
-                query: {}
-            });   
-            res[feature] = timeObj.time
+            const time = await fetchy("/api/screenTime/" + username + "/" + feature, "GET");   
+            res[feature] = time
         }
     } catch (error) {
         return {}
@@ -36,8 +34,7 @@ onBeforeMount(async () => {
         <h2> username: {{ username }}</h2>
         <section v-if="username">
             <p v-for="feature in ['Home', 'Feed', 'People']">
-                {{ feature }}: {{ Math.floor(screenTimeData[feature] / 60) }} m {{ screenTimeData[feature] % 60 }} s
-
+                {{ feature }}: {{ convertTime(Number(screenTimeData[feature])).hour }} hr {{ convertTime(Number(screenTimeData[feature])).minute }} m
             </p>
         </section>
     </div>

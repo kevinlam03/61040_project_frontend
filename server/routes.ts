@@ -444,6 +444,7 @@ class Routes {
   @Router.post("/screenTime/:username/:feature")
   async setTimedUsed(username: string, feature: string, time: string) {
     // set timeUsed for user for specified feature
+    console.log("Updating time for " + feature + ", " + time)
     const user_id = (await User.getUserByUsername(username))._id;
     return await ScreenTime.setTimeUsed(
       user_id, 
@@ -486,7 +487,6 @@ class Routes {
 
   @Router.get("/restrictions/check/:feature")
   async isRestricted(session: WebSessionDoc, feature: string) {
-    console.log("ENTERED BAD")
     // check restriction for user for specified url
     const user_id = WebSession.getUser(session);
     // check timeUsed for that restriction
@@ -494,7 +494,7 @@ class Routes {
       user_id,
       feature,
     );
-    return await TimeRestriction.restrictionExceeded(user_id, feature, res.time);
+    return await TimeRestriction.restrictionExceeded(user_id, feature, res);
   }
 
 

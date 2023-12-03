@@ -1,5 +1,5 @@
 // convert a time in seconds and return an object containing the hours minutes and seconds
-export const convertTime = (seconds: number) => {
+export function convertTime(seconds: number) {
     var sec = seconds;
     const hr = Math.floor(sec / 3600);
     sec = sec % 3600

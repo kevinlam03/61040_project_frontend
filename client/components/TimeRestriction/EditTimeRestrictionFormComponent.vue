@@ -1,6 +1,7 @@
 <script setup lang="ts">
-import { computed, onBeforeMount, ref } from "vue";
-import { convertTime } from "../../utils/convertTime";
+import { storeToRefs } from "pinia";
+import { onBeforeMount, ref } from "vue";
+import { useTimeStore } from "../../stores/timeTrack";
 import { fetchy } from "../../utils/fetchy";
 
 const props = defineProps(["feature"]);
@@ -11,11 +12,8 @@ const minuteSelectionList: number[] = [];
 
 const hourSelection = ref(0);
 const minuteSelection = ref(0);
-const timeRestriction = ref(86400);
 
-const hrRestriction = computed(() => convertTime(timeRestriction.value).hour)
-const minRestriction = computed(() => convertTime(timeRestriction.value).minute)
-
+const { restriction, hrRestriction, minRestriction } = storeToRefs(useTimeStore());
 for(var min = 0; min <= 60; min++ ) {
     minuteSelectionList.push(min);
 }
@@ -27,9 +25,9 @@ const getTimeRestriction = async () => {
     res = await fetchy(`/api/restrictions/time/${props.feature}`, 'GET')
     
     if (res === null) {
-      timeRestriction.value = 86400
+      restriction.value = 86400
     } else {
-      timeRestriction.value = res.limit;
+      restriction.value = res.limit;
     }
 
   } catch (error: any) {
@@ -47,12 +45,9 @@ const addTimeRestriction = async () => {
   } catch (e) {
 
   }
-
-  
 };
 
 const editTimeRestriction = async () => {
-  console.log(timeRestriction.value)
   const totalSeconds = hourSelection.value * 3600 + minuteSelection.value * 60;
 
   try {
@@ -65,8 +60,7 @@ const editTimeRestriction = async () => {
 };
 
 const handleFormSubmit = async () => {
-  console.log("Entering handle: " + timeRestriction.value)
-  if (timeRestriction.value === 86400) {
+  if (restriction.value === 86400) {
     await addTimeRestriction();
   } else {
     await editTimeRestriction();
