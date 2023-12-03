@@ -1,13 +1,14 @@
 <script setup lang="ts">
 
-import { onBeforeMount, ref } from 'vue';
-import { fetchy } from "@/utils/fetchy"
+import { fetchy } from "@/utils/fetchy";
+import { ref } from 'vue';
 
-import RequestListComponent from '@/components/ScreenTime/RequestListComponent.vue';
 import SidebarComponent from '@/components/General/SidebarComponent.vue';
+import RequestListComponent from '@/components/ScreenTime/RequestListComponent.vue';
 import ScreenTimeDataComponent from '@/components/ScreenTime/ScreenTimeDataComponent.vue';
 import { useUserStore } from '@/stores/user';
 import { storeToRefs } from 'pinia';
+import RestrictionListComponent from "../components/TimeRestriction/RestrictionListComponent.vue";
 
 const { currentUsername } = storeToRefs(useUserStore());
 
@@ -66,6 +67,10 @@ const getMonitoringList = async () => {
             v-if="selectedOption.name === 'Others'"
             v-for="user in monitoringList"
             :username="user"
+            />
+
+            <RestrictionListComponent
+            v-if="selectedOption.name==='Manage Restrictions'"
             />
 
             <RequestListComponent v-if="selectedOption.name === 'Manage ScreenTime Sharing'"/>

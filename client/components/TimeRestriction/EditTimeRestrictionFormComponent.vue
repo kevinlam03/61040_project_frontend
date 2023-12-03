@@ -25,14 +25,15 @@ const getTimeRestriction = async () => {
   let res;
   try {
     res = await fetchy(`/api/restrictions/time/${props.feature}`, 'GET')
-
-    console.log(res);
+    
     if (res === null) {
-      res = 86400
+      timeRestriction.value = 86400
+    } else {
+      timeRestriction.value = res.limit;
     }
-    timeRestriction.value = res.limit;
-  } catch {
-    console.log("ERRORRRR")
+
+  } catch (error: any) {
+    console.log(error)
   }
   
 }

@@ -10,7 +10,6 @@ import NotificationView from "../views/NotificationView.vue";
 import PeopleView from "../views/PeopleView.vue";
 import ScreenTimeView from "../views/ScreenTimeView.vue";
 import SettingView from "../views/SettingView.vue";
-import RestrictionsView from "../views/RestrictionsView.vue"
 
 
 const router = createRouter({
@@ -62,12 +61,6 @@ const router = createRouter({
       path: "/screenTime",
       name: "ScreenTime",
       component: ScreenTimeView,
-      meta: { requiresAuth: true },
-    },
-    {
-      path: "/restrictions",
-      name: "Restrictions",
-      component: RestrictionsView,
       meta: { requiresAuth: true },
     },
     {

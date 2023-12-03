@@ -72,13 +72,6 @@ onBeforeMount(async () => {
               Notifications 
           </RouterLink>
         </li>
-        <li v-if="isLoggedIn">
-          <RouterLink 
-            :to="{ name: 'Restrictions' }" 
-            :class="{ underline: currentRouteName == 'Restrictions' }"> 
-              Restrictions 
-          </RouterLink>
-        </li>
         <li v-else>
           <RouterLink 
             :to="{ name: 'Login' }" 

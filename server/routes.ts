@@ -480,7 +480,8 @@ class Routes {
   async getRestriction(session: WebSessionDoc, feature: string) {
     // check restriction for user for specified url
     const user_id = WebSession.getUser(session);
-    return await TimeRestriction.getRestriction(user_id, feature);
+    const res = await TimeRestriction.getRestriction(user_id, feature);
+    return res
   }
 
   @Router.get("/restrictions/check/:feature")

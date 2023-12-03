@@ -2,19 +2,10 @@
 
 import { useUserStore } from "@/stores/user";
 import { storeToRefs } from "pinia";
-import { onMounted, onUnmounted } from "vue";
-import EditTimeRestrictionFormComponent from "../components/TimeRestriction/EditTimeRestrictionFormComponent.vue";
+import EditTimeRestrictionFormComponent from "./EditTimeRestrictionFormComponent.vue";
 
 const { currentUsername, isLoggedIn } = storeToRefs(useUserStore());
-const features = ["Home", "Feed"];
-
-onMounted(async () => { 
-});
-
-onUnmounted( async () => {
-});
-
-
+const features = ["Home", "Feed", "People"];
 </script>
 
 <template>
