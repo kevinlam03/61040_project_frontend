@@ -1,7 +1,6 @@
 <script setup lang="ts">
-import { storeToRefs } from "pinia";
-import { onBeforeMount, ref } from "vue";
-import { useTimeStore } from "../../stores/timeTrack";
+import { computed, onBeforeMount, ref } from "vue";
+import { convertTime } from "../../utils/convertTime";
 import { fetchy } from "../../utils/fetchy";
 
 const props = defineProps(["feature"]);
@@ -13,7 +12,10 @@ const minuteSelectionList: number[] = [];
 const hourSelection = ref(0);
 const minuteSelection = ref(0);
 
-const { restriction, hrRestriction, minRestriction } = storeToRefs(useTimeStore());
+const restriction = ref(86400);
+const hrRestriction = computed(() => convertTime(restriction.value).hour)
+const minRestriction = computed(() => convertTime(restriction.value).minute)
+
 for(var min = 0; min <= 60; min++ ) {
     minuteSelectionList.push(min);
 }
@@ -24,14 +26,15 @@ const getTimeRestriction = async () => {
   try {
     res = await fetchy(`/api/restrictions/time/${props.feature}`, 'GET')
     
-    if (res === null) {
+    if (res.res === null) {
+      console.log("No restriction found for : " + props.feature)
       restriction.value = 86400
     } else {
-      restriction.value = res.limit;
+      restriction.value = res.res.limit;
     }
 
-  } catch (error: any) {
-    console.log(error)
+  } catch (e) {
+    console.log(e)
   }
   
 }

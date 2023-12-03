@@ -11,8 +11,13 @@ const handleRedirect = () => {
     void router.push({ name: "ScreenTime" });
 }
 
-const notifyMonitor = async () => {
-    emit("notifyMonitor");
+const notifyMonitors = async () => {
+    try {
+
+    } catch (e) {
+        
+    }
+    emit('notifyMonitor', false);
 }
 </script>
 
@@ -24,7 +29,7 @@ const notifyMonitor = async () => {
     <button @click="handleRedirect()">
         Go to ScreenTime
     </button>
-    <button @click="emit('notifyMonitor', false)">
+    <button @click="notifyMonitors">
         Notify monitors
     </button>
   </main>

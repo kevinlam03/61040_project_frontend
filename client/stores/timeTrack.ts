@@ -31,18 +31,18 @@ export const useTimeStore = defineStore(
         try {
           res = await fetchy(`/api/restrictions/time/${feature}`, 'GET');
       
-          if (res === null) {
-            res = 86400;
+          if (res.res === null) {
+            return 86400;
           }
-        } catch {
-          
+        } catch (e) {
+          console.log(e);
         }
-        return res
+        return res.res.limit;
       }
 
       const startTimeTracking = async (username: string, feature: string) => {
         timeUsed.value = await getScreenTimeData(username, feature);
-        restriction.value = (await getFeatureRestriction(feature)).limit;
+        restriction.value = (await getFeatureRestriction(feature));
       
         console.log(timeUsed.value + " " + JSON.stringify(restriction.value))
       
