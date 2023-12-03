@@ -1,8 +1,13 @@
-// convert a time in milliseconds and return an object containing the hours minutes and seconds
+// convert a time in seconds and return an object containing the hours minutes and seconds
 export const convertTime = (seconds: number) => {
+    var sec = seconds;
+    const hr = Math.floor(sec / 3600);
+    sec = sec % 3600
+    const min = Math.floor(sec / 60);
+    sec = sec % 60
     return {
-        hour: seconds / 3600,
-        minute: (seconds % 3600) / 60,
-        second: ((seconds % 3600) % 60),
+        hour: hr,
+        minute: min,
+        second: sec,
     }
 }

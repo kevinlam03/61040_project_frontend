@@ -1,5 +1,6 @@
 <script setup lang="ts">
-import { onBeforeMount, ref } from "vue";
+import { computed, onBeforeMount, ref } from "vue";
+import { convertTime } from "../../utils/convertTime";
 import { fetchy } from "../../utils/fetchy";
 
 const props = defineProps(["feature"]);
@@ -12,17 +13,13 @@ const hourSelection = ref(0);
 const minuteSelection = ref(0);
 const timeRestriction = ref(86400);
 
+const hrRestriction = computed(() => convertTime(timeRestriction.value).hour)
+const minRestriction = computed(() => convertTime(timeRestriction.value).minute)
+
 for(var min = 0; min <= 60; min++ ) {
     minuteSelectionList.push(min);
 }
 
-const makeHourSelection = (newHour: string) => {
-  hourSelection.value = Number(newHour);
-}
-
-const makeMinuteSelection = (newMinute: string) => {
-  hourSelection.value = Number(newMinute);
-}
 
 const getTimeRestriction = async () => {
   let res;
@@ -33,7 +30,7 @@ const getTimeRestriction = async () => {
     if (res === null) {
       res = 86400
     }
-    timeRestriction.value = res;
+    timeRestriction.value = res.limit;
   } catch {
     console.log("ERRORRRR")
   }
@@ -82,6 +79,8 @@ onBeforeMount(async () => {
 </script>
 
 <template>
+  <h1>{{ props.feature }}</h1>
+  <p>Current Restriction: {{ hrRestriction  }} hr {{ minRestriction }} min</p>
   <form @submit.prevent="handleFormSubmit()">
     Set Restriction for {{ props.feature }}:
 
