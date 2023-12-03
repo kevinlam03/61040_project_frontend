@@ -12,7 +12,7 @@ export const getTimeUsed = () => {
 export const getScreenTimeData = async (username: string, feature: string) => {
   let res;
   try {
-    res = await fetchy(`api/screenTime/${username}/${feature}`, 'GET');
+    res = await fetchy(`/api/screenTime/${username}/${feature}`, 'GET');
   } catch {
     return;
   }
@@ -22,11 +22,15 @@ export const getScreenTimeData = async (username: string, feature: string) => {
 export const getFeatureRestriction = async (feature: string) => {
   let res;
   try {
-    res = await fetchy(`api/restriction/time/${feature}`, 'GET');
+    res = await fetchy(`/api/restrictions/time/${feature}`, 'GET');
+
+    if (res === null) {
+      res = 86400;
+    }
   } catch {
-    return;
+    
   }
-  return res;
+  return res
 }
 
 /* 
@@ -65,7 +69,7 @@ export const endTimeTracking = async (interval: any, username: string, feature: 
   clearInterval(interval);
 
   try {
-    await fetchy(`api/screenTime/${username}/${feature}`, 'POST');
+    await fetchy(`/api/screenTime/${username}/${feature}`, 'POST');
   }
   catch {
     return;

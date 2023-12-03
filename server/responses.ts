@@ -153,12 +153,12 @@ Router.registerError(ScreenTimeDataNotFoundError, async (e) => {
 // TIMERESTRICTION
 Router.registerError(TimeRestrictionNotFoundError, async (e) => {
   const user = await User.getUserById(e.user);
-  return e.formatWith(user.username, e.feature.name);
+  return e.formatWith(user.username, e.feature);
 });
 
 Router.registerError(TimeRestrictionAlreadyExistsError, async (e) => {
   const user = await User.getUserById(e.user);
-  return e.formatWith(user.username, e.feature.name);
+  return e.formatWith(user.username, e.feature);
 });
 
 

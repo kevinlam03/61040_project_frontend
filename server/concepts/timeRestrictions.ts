@@ -2,31 +2,27 @@ import { ObjectId } from "mongodb";
 import DocCollection, { BaseDoc } from "../framework/doc";
 import { BadValuesError, NotAllowedError, NotFoundError } from "./errors";
 
-export interface Feature {
-    name: string
-}
-
 export interface TimeRestrictionDoc extends BaseDoc {
     user: ObjectId;
-    feature: Feature;
+    feature: string;
     limit: number;
 }
 
 export default class TimeRestrictionConcept {
     public readonly restrictions = new DocCollection<TimeRestrictionDoc>("timeRestrictions");
 
-    async addRestriction(user: ObjectId, feature: Feature, limit: number) {
+    async addRestriction(user: ObjectId, feature: string, limit: number) {
         // error check for restriction already exists
         await this.canAddRestriction(user, feature);
         await this.restrictions.createOne({user, feature, limit})
         return { msg: "Added restriction!"}
     }
 
-    async getRestriction(user: ObjectId, feature: Feature) {
+    async getRestriction(user: ObjectId, feature: string) {
         return await this.restrictions.readOne({ user, feature });
     }
 
-    async setRestriction(user: ObjectId, feature: Feature, limit: number) {
+    async setRestriction(user: ObjectId, feature: string, limit: number) {
         // error check for restriction not existing
         await this.restrictionExists(user, feature);
         // error check for appropriate limit
@@ -35,21 +31,21 @@ export default class TimeRestrictionConcept {
         return { msg: "Updated restriction!"}
     }
 
-    async removeRestriction(user: ObjectId, feature: Feature) {
+    async removeRestriction(user: ObjectId, feature: string) {
         // error check for restriction not existing
         await this.restrictionExists(user, feature);
         await this.restrictions.deleteOne({user, feature})
         return { msg: "Removed restriction!"}
     }
 
-    async restrictionExists(user: ObjectId, feature: Feature) {
+    async restrictionExists(user: ObjectId, feature: string) {
         const res = await this.restrictions.readOne({user, feature});
         if (res === null) {
             throw new TimeRestrictionNotFoundError(user, feature);
         }
     }
 
-    async canAddRestriction(user: ObjectId, feature: Feature) {
+    async canAddRestriction(user: ObjectId, feature: string) {
         // If restriction already exists for this user, throw error
         const res = await this.restrictions.readOne({user, feature});
         if (res !== null) {
@@ -57,7 +53,7 @@ export default class TimeRestrictionConcept {
         }
     }
 
-    async restrictionExceeded(user: ObjectId, feature: Feature, time: number) {
+    async restrictionExceeded(user: ObjectId, feature: string, time: number) {
         await this.restrictionExists(user, feature);
 
         const res = await this.restrictions.readOne({user, feature});
@@ -80,7 +76,7 @@ export default class TimeRestrictionConcept {
 export class TimeRestrictionNotFoundError extends NotFoundError {
     constructor(
         public readonly user: ObjectId,
-        public readonly feature: Feature,
+        public readonly feature: string,
     ) {
         super("Time Restriction on {1} not found for {0}!", user, feature);
     }
@@ -89,7 +85,7 @@ export class TimeRestrictionNotFoundError extends NotFoundError {
 export class TimeRestrictionAlreadyExistsError extends NotAllowedError {
     constructor(
         public readonly user: ObjectId,
-        public readonly feature: Feature,
+        public readonly feature: string,
     ) {
         super("Time restriction on {1} already exists for {0}!", user, feature)
     }

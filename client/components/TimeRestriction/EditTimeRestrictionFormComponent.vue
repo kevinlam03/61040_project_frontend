@@ -10,33 +10,70 @@ const minuteSelectionList: number[] = [];
 
 const hourSelection = ref(0);
 const minuteSelection = ref(0);
-const timeRestriction = ref(0);
+const timeRestriction = ref(86400);
 
 for(var min = 0; min <= 60; min++ ) {
     minuteSelectionList.push(min);
 }
 
+const makeHourSelection = (newHour: string) => {
+  hourSelection.value = Number(newHour);
+}
+
+const makeMinuteSelection = (newMinute: string) => {
+  hourSelection.value = Number(newMinute);
+}
+
 const getTimeRestriction = async () => {
   let res;
   try {
-    res = await fetchy(`api/restriction/`, 'GET', { query: { feature: props.feature}})
-  } catch {
+    res = await fetchy(`/api/restrictions/time/${props.feature}`, 'GET')
 
+    console.log(res);
+    if (res === null) {
+      res = 86400
+    }
+    timeRestriction.value = res;
+  } catch {
+    console.log("ERRORRRR")
   }
-  timeRestriction.value = res;
+  
 }
 
-const editTimeRestriction = async () => {
+const addTimeRestriction = async () => {
   const totalSeconds = hourSelection.value * 3600 + minuteSelection.value * 60;
 
   try {
-    await fetchy(`/api/restrictions/${props.feature}`, "PUT", { body: totalSeconds });
+    await fetchy(`/api/restrictions/${props.feature}`, "POST", { body: {limit: totalSeconds} });
+    await getTimeRestriction();
+  } catch (e) {
+
+  }
+
+  
+};
+
+const editTimeRestriction = async () => {
+  console.log(timeRestriction.value)
+  const totalSeconds = hourSelection.value * 3600 + minuteSelection.value * 60;
+
+  try {
+    await fetchy(`/api/restrictions/${props.feature}`, "PUT", { body: {limit: totalSeconds} });
+    await getTimeRestriction();
   } catch (e) {
     return;
   }
-  emit("editRestriction");
-  emit("refreshRestrictions");
+  
 };
+
+const handleFormSubmit = async () => {
+  console.log("Entering handle: " + timeRestriction.value)
+  if (timeRestriction.value === 86400) {
+    await addTimeRestriction();
+  } else {
+    await editTimeRestriction();
+  }
+}
 
 onBeforeMount(async () => {
   await getTimeRestriction();
@@ -45,22 +82,23 @@ onBeforeMount(async () => {
 </script>
 
 <template>
-  <form @submit.prevent="editTimeRestriction()">
+  <form @submit.prevent="handleFormSubmit()">
     Set Restriction for {{ props.feature }}:
 
     <label for="hour">Hours</label>
-    <select name="">
+    <select name="hour" v-model="hourSelection">
       <option id="hour" v-for="hour in hourSelectionList" :value="hour">
         {{ hour }}
       </option>
     </select>
 
     <label for="minute">Minutes</label>
-    <select>
+    <select name="minute" v-model="minuteSelection">
       <option id="minute" v-for="minute in minuteSelectionList" :value="minute">
         {{ minute }}
       </option>
     </select>
+    <button type="submit">Set</button>
   </form>
 </template>
 

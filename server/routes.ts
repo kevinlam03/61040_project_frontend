@@ -436,7 +436,7 @@ class Routes {
 
     let res = await ScreenTime.getTimeUsed(
       target_id, 
-      { name:feature }, 
+      feature, 
     );
     return res
   }
@@ -447,7 +447,7 @@ class Routes {
     const user_id = (await User.getUserByUsername(username))._id;
     return await ScreenTime.setTimeUsed(
       user_id, 
-      { name: feature },
+      feature,
       Number(time),
     );
   }
@@ -460,39 +460,40 @@ class Routes {
   async addRestriction(session: WebSessionDoc, feature: string, limit: string) {
     // add restriction for user for specified url
     const user_id = WebSession.getUser(session);
-    return await TimeRestriction.addRestriction(user_id, { name: feature }, Number(limit));
+    return await TimeRestriction.addRestriction(user_id, feature, Number(limit));
   }
 
   @Router.put("/restrictions/:feature")
   async updateRestriction(session: WebSessionDoc, feature: string, limit: string) {
     const user_id = WebSession.getUser(session);
-    return await TimeRestriction.setRestriction(user_id, { name: feature }, Number(limit));
+    return await TimeRestriction.setRestriction(user_id, feature, Number(limit));
   }
 
   @Router.delete("/restrictions/:username/:feature")
   async removeRestriction(session: WebSessionDoc, feature: string) {
     // remove restriction for user for specified url
     const user_id = WebSession.getUser(session);
-    return await TimeRestriction.removeRestriction(user_id, { name: feature });
+    return await TimeRestriction.removeRestriction(user_id, feature);
   }
 
   @Router.get("/restrictions/time/:feature")
   async getRestriction(session: WebSessionDoc, feature: string) {
     // check restriction for user for specified url
     const user_id = WebSession.getUser(session);
-    return await TimeRestriction.getRestriction(user_id, { name: feature });
+    return await TimeRestriction.getRestriction(user_id, feature);
   }
 
-  @Router.get("/restrictions/:feature")
+  @Router.get("/restrictions/check/:feature")
   async isRestricted(session: WebSessionDoc, feature: string) {
+    console.log("ENTERED BAD")
     // check restriction for user for specified url
     const user_id = WebSession.getUser(session);
     // check timeUsed for that restriction
     const res = await ScreenTime.getTimeUsed(
       user_id,
-      { name: feature }
+      feature,
     );
-    return await TimeRestriction.restrictionExceeded(user_id, { name: feature }, res.time);
+    return await TimeRestriction.restrictionExceeded(user_id, feature, res.time);
   }
 
 

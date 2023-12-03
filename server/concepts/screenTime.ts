@@ -1,11 +1,10 @@
 import { ObjectId } from "mongodb";
 import DocCollection, { BaseDoc } from "../framework/doc";
 import { NotAllowedError } from "./errors";
-import { Feature } from "./timeRestrictions";
 
 export interface ScreenTimeDoc extends BaseDoc {
     user: ObjectId;
-    feature: Feature;
+    feature: string;
     timeUsed: number; // in seconds
 }
 
@@ -13,14 +12,14 @@ export interface ScreenTimeDoc extends BaseDoc {
 export default class ScreenTimeConcept {
     public readonly screenTime = new DocCollection<ScreenTimeDoc>("screenTime");
 
-    async setTimeUsed(user: ObjectId, feature: Feature, time: number) {
+    async setTimeUsed(user: ObjectId, feature: string, time: number) {
         // Create document if it doesn't already exist 
         try {
             await this.dataExists(user, feature);
         } catch( ScreenTimeDataNotFoundError ) {
             await this.screenTime.createOne({
                 user, 
-                feature: { name: feature.name},
+                feature,
                 timeUsed: 0,
             });
         }
@@ -28,7 +27,7 @@ export default class ScreenTimeConcept {
         await this.screenTime.updateOne(
             { 
                 user, 
-                feature : { name: feature.name },
+                feature,
             }, 
             {
                 timeUsed: time
@@ -39,7 +38,7 @@ export default class ScreenTimeConcept {
 
     }
     
-    async getTimeUsed(user: ObjectId, feature: Feature) {
+    async getTimeUsed(user: ObjectId, feature: string) {
         try {
             await this.dataExists(user, feature);  
         } catch(ScreenTimeDataNotFoundError) {
@@ -48,7 +47,7 @@ export default class ScreenTimeConcept {
 
         const res = await this.screenTime.readOne({
             user, 
-            feature: { name: feature.name },
+            feature,
         });
 
         if (res === null) {
@@ -59,10 +58,10 @@ export default class ScreenTimeConcept {
     }
 
     // always fails, always making new document right now
-    async dataExists(user: ObjectId, feature: Feature) {
+    async dataExists(user: ObjectId, feature: string) {
         const res = await this.screenTime.readOne({
             user, 
-            feature: { name: feature.name},
+            feature,
         });
 
         if (res === null) {
