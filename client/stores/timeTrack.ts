@@ -3,6 +3,7 @@ import { defineStore } from "pinia";
 import { computed, ref } from "vue";
 import { convertTime } from "../utils/convertTime";
 
+
 export const useTimeStore = defineStore(
   "time",
   () => {
@@ -41,27 +42,15 @@ export const useTimeStore = defineStore(
 
       const startTimeTracking = async (username: string, feature: string) => {
         timeUsed.value = await getScreenTimeData(username, feature);
-        restriction.value = await getFeatureRestriction(feature);
+        restriction.value = (await getFeatureRestriction(feature)).limit;
       
-        /* if (timeUsed >= restriction) {
-          toastStore.showToast({
-            message: "Time limit exceeded!",
-            style: "error",
-          })
-        } */
+        console.log(timeUsed.value + " " + JSON.stringify(restriction.value))
       
         const secondsDelay = 1
       
         return setInterval(() => {
-          console.log("Elapsed: " + timeUsed.value)
+          //console.log("Elapsed: " + timeUsed.value)
           timeUsed.value += secondsDelay
-      
-          /* if (timeUsed === restriction) {
-            toastStore.showToast({
-              message: "Time limit exceeded!",
-              style: "error",
-            })
-          } */
         }, secondsDelay * 1000);
       }
 

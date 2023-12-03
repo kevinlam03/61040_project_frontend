@@ -3,13 +3,21 @@
 import PostListComponent from "@/components/Post/PostListComponent.vue";
 import { useUserStore } from "@/stores/user";
 import { storeToRefs } from "pinia";
-import { onMounted, onUnmounted } from "vue";
+import { onMounted, onUnmounted, ref } from "vue";
+import RestrictionMessageComponent from "../components/TimeRestriction/RestrictionMessageComponent.vue";
 import { useTimeStore } from "../stores/timeTrack";
 
 const { startTimeTracking, endTimeTracking } = useTimeStore();
+const { timeUsed, restriction } = storeToRefs(useTimeStore());
+
+const showWarning = ref(timeUsed >= restriction);
 const { currentUsername, isLoggedIn } = storeToRefs(useUserStore());
 
 let interval: NodeJS.Timeout;
+
+const changeWarning = (value: boolean) => {
+  showWarning.value = value
+}
 
 onMounted(async () => {
   try {
@@ -33,7 +41,8 @@ onUnmounted( async () => {
 </script>
 
 <template>
-  <main>
+  <RestrictionMessageComponent v-if="showWarning" @notify-monitor="changeWarning"/>
+  <main v-else>
     <h1>Home Page</h1>
     <!--
       <p>{{ currentScreenTimeData["Home"] }}</p>
