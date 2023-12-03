@@ -1,9 +1,12 @@
 <script setup lang="ts">
 import PostComponent from "@/components/Post/PostComponent.vue";
+import { useTimeStore } from "@/stores/timeTrack";
 import { useUserStore } from "@/stores/user";
 import { fetchy } from "@/utils/fetchy";
 import { storeToRefs } from "pinia";
 import { onBeforeMount, onMounted, onUnmounted, ref } from "vue";
+
+const { startTimeTracking, endTimeTracking } = useTimeStore();
 
 const starredFeed = ref<Array<Record<string, string>>>([]);
 const notStarredFeed = ref<Array<Record<string, string>>>([]);
@@ -33,22 +36,8 @@ const getNotStarredFeed = async () => {
 
 
 const { currentUsername, isLoggedIn } = storeToRefs(useUserStore());
-var clearIntervalReference: NodeJS.Timeout;
+var interval: NodeJS.Timeout;
 
-/*
-  Before entering a page, we need to start tracking the screenTime for this feature
-*/
-const initializeScreenTimeTracking = async (username: string, feature: string) => {
-    
-}
-
-/*
-  Before exiting a page, we need to send updates to the api, and stop tracking time
-  for this feature.
-*/
-const endScreenTimeTracking = async (username: string) => {
-    
-}
 
 
 onBeforeMount(async () => {
@@ -56,11 +45,19 @@ onBeforeMount(async () => {
 })
 
 onMounted(async () => {
-    await initializeScreenTimeTracking(currentUsername.value, "Feed");
+    try {
+        interval = await startTimeTracking(currentUsername.value, "Feed")
+    } catch (e) {
+        console.log(e)
+    }
 });
 
 onUnmounted( async () => {
-    await endScreenTimeTracking(currentUsername.value);
+    try {
+        await endTimeTracking(interval, currentUsername.value, "Feed")
+    } catch (e) {
+        console.log(e)
+    }
 });
 
 
