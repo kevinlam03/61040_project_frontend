@@ -3,6 +3,7 @@
 import { useUserStore } from "@/stores/user";
 import { storeToRefs } from "pinia";
 import router from "../../router";
+import { fetchy } from "../../utils/fetchy";
 
 const { currentUsername, isLoggedIn } = storeToRefs(useUserStore());
 const emit = defineEmits(["notifyMonitor"]);
@@ -13,11 +14,11 @@ const handleRedirect = () => {
 
 const notifyMonitors = async () => {
     try {
-
+        await fetchy(`/api/monitorRelations/alert`, 'POST')
     } catch (e) {
-        
+        console.log(e)
     }
-    emit('notifyMonitor', false);
+    emit('notifyMonitor');
 }
 </script>
 

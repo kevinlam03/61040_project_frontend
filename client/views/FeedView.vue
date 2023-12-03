@@ -5,18 +5,19 @@ import { useTimeStore } from "@/stores/timeTrack";
 import { useUserStore } from "@/stores/user";
 import { fetchy } from "@/utils/fetchy";
 import { storeToRefs } from "pinia";
-import { onBeforeMount, onBeforeUnmount, ref } from "vue";
+import { computed, onBeforeMount, onBeforeUnmount, ref } from "vue";
 const { startTimeTracking, endTimeTracking } = useTimeStore();
 const { timeUsed, restriction } = storeToRefs(useTimeStore());
 
-const showWarning = ref(timeUsed.value >= restriction.value);
+const showPopup = computed(() => timeUsed.value >= restriction.value);
+const closedPopup = ref(false);
 
 const starredFeed = ref<Array<Record<string, string>>>([]);
 const notStarredFeed = ref<Array<Record<string, string>>>([]);
 const feedOption = ref("starred");
 
 const changeWarning = (value: boolean) => {
-  showWarning.value = value
+  closedPopup.value = value
 }
 
 const getStarredFeed = async () => {
@@ -51,7 +52,6 @@ onBeforeMount(async () => {
     await getStarredFeed();
     try {
         interval = await startTimeTracking(currentUsername.value, "Feed"); 
-        showWarning.value = timeUsed.value >= restriction.value 
         console.log("After mount: Time: " + timeUsed.value + "Restrict: " + restriction.value)
   } catch (e) {
         console.log(e);
@@ -71,7 +71,7 @@ onBeforeUnmount( async () => {
 </script>
 
 <template>
-    <RestrictionMessageComponent v-if="showWarning" @notify-monitor="changeWarning"/>
+    <RestrictionMessageComponent v-if="showPopup && !closedPopup" @notify-monitor="changeWarning"/>
     <div v-else>
         <button @click="getStarredFeed()">
         Starred Feed

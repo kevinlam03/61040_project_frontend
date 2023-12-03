@@ -346,6 +346,20 @@ class Routes {
     return await Responses.relationRequests(await Monitor.getRequests(user));
   }
 
+  @Router.post("/monitorRelations/alert")
+  // Send notification to all monitors that you exceeded restriction!
+  async alertMonitors(session: WebSessionDoc) {
+    const user = WebSession.getUser(session);
+    const monitorDocs = await Monitor.getFollowerRelations(user);
+
+    for (const monitorDoc of monitorDocs) {
+      Notification.addNotification(
+        monitorDoc.viewer, 
+        `${(await User.getUserById(monitorDoc.target)).username} has exceeded their restriction for today!`);
+    }
+    return { msg: "Your monitors have been notified"}
+  }
+
   @Router.get("/monitorRelations/requests/sent/pending")
   async getPendingSentMonitorRequests(session: WebSessionDoc) {
     const user = WebSession.getUser(session);

@@ -8,7 +8,7 @@ import RestrictionMessageComponent from "@/components/TimeRestriction/Restrictio
 
 import { useUserStore } from "@/stores/user";
 import { storeToRefs } from "pinia";
-import { onBeforeMount, onBeforeUnmount, ref } from "vue";
+import { computed, onBeforeMount, onBeforeUnmount, ref } from "vue";
 import { useTimeStore } from "../stores/timeTrack";
 
 interface PeopleViewMenuOptions {
@@ -19,14 +19,15 @@ const { startTimeTracking, endTimeTracking } = useTimeStore();
 const { currentUsername, isLoggedIn } = storeToRefs(useUserStore());
 const { timeUsed, restriction } = storeToRefs(useTimeStore());
 
-const showWarning = ref(true);
+const showPopup = computed(() => timeUsed.value >= restriction.value);
+const closedPopup = ref(false);
 var interval: NodeJS.Timeout;
 
 // need to remember current option to display
 let selectedOption = ref<PeopleViewMenuOptions>({name:"Following"});
 
 const changeWarning = (value: boolean) => {
-  showWarning.value = value
+  closedPopup.value = value
 }
 
 const handleMenuOption = (option: PeopleViewMenuOptions) => {
@@ -35,8 +36,7 @@ const handleMenuOption = (option: PeopleViewMenuOptions) => {
 
 onBeforeMount(async () => {
     try {
-        interval = await startTimeTracking(currentUsername.value, "People"); 
-        showWarning.value = timeUsed.value >= restriction.value 
+        interval = await startTimeTracking(currentUsername.value, "People");
         console.log("After mount: Time: " + timeUsed.value + "Restrict: " + restriction.value)
   } catch (e) {
         console.log(e);
@@ -55,7 +55,7 @@ onBeforeUnmount( async () => {
 
 
 <template>
-    <RestrictionMessageComponent v-if="showWarning" @notify-monitor="changeWarning"/>
+    <RestrictionMessageComponent v-if="showPopup && !closedPopup" @notify-monitor="changeWarning"/>
     <div class="people-view" v-else>
         <nav>
             <h1>People</h1>
