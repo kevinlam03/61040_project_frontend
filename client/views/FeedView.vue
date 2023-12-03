@@ -1,16 +1,23 @@
 <script setup lang="ts">
 import PostComponent from "@/components/Post/PostComponent.vue";
+import RestrictionMessageComponent from "@/components/TimeRestriction/RestrictionMessageComponent.vue";
 import { useTimeStore } from "@/stores/timeTrack";
 import { useUserStore } from "@/stores/user";
 import { fetchy } from "@/utils/fetchy";
 import { storeToRefs } from "pinia";
-import { onBeforeMount, onMounted, onUnmounted, ref } from "vue";
-
+import { onBeforeMount, onBeforeUnmount, ref } from "vue";
 const { startTimeTracking, endTimeTracking } = useTimeStore();
+const { timeUsed, restriction } = storeToRefs(useTimeStore());
+
+const showWarning = ref(timeUsed.value >= restriction.value);
 
 const starredFeed = ref<Array<Record<string, string>>>([]);
 const notStarredFeed = ref<Array<Record<string, string>>>([]);
 const feedOption = ref("starred");
+
+const changeWarning = (value: boolean) => {
+  showWarning.value = value
+}
 
 const getStarredFeed = async () => {
     let res;
@@ -42,17 +49,16 @@ var interval: NodeJS.Timeout;
 
 onBeforeMount(async () => {
     await getStarredFeed();
+    try {
+        interval = await startTimeTracking(currentUsername.value, "Feed"); 
+        showWarning.value = timeUsed.value >= restriction.value 
+        console.log("After mount: Time: " + timeUsed.value + "Restrict: " + restriction.value)
+  } catch (e) {
+        console.log(e);
+  }
 })
 
-onMounted(async () => {
-    try {
-        interval = await startTimeTracking(currentUsername.value, "Feed")
-    } catch (e) {
-        console.log(e)
-    }
-});
-
-onUnmounted( async () => {
+onBeforeUnmount( async () => {
     try {
         await endTimeTracking(interval, currentUsername.value, "Feed")
     } catch (e) {
@@ -65,21 +71,25 @@ onUnmounted( async () => {
 </script>
 
 <template>
-    <button @click="getStarredFeed()">
+    <RestrictionMessageComponent v-if="showWarning" @notify-monitor="changeWarning"/>
+    <div v-else>
+        <button @click="getStarredFeed()">
         Starred Feed
-    </button>
-    <button @click="getNotStarredFeed()">
-        Not Starred Feed
-    </button>
+        </button>
+        <button @click="getNotStarredFeed()">
+            Not Starred Feed
+        </button>
 
-    <main>
-        <article v-if="feedOption==='starred'" v-for="post in starredFeed">
-            <PostComponent :post="post"/>
-        </article>
-        <article v-else v-for="post in notStarredFeed">
-            <PostComponent :post="post"/>
-        </article>
-    </main>
+        <main>
+            <article v-if="feedOption==='starred'" v-for="post in starredFeed">
+                <PostComponent :post="post"/>
+            </article>
+            <article v-else v-for="post in notStarredFeed">
+                <PostComponent :post="post"/>
+            </article>
+        </main>
+    </div>
+    
 
 </template>
 

@@ -4,38 +4,46 @@ import SidebarComponent from "@/components/General/SidebarComponent.vue";
 import FollowRelationListComponent from "@/components/People/FollowRelationListComponent.vue";
 import RequestListComponent from "@/components/People/RequestListComponent.vue";
 import SearchPeopleComponent from "@/components/People/SearchPeopleComponent.vue";
+import RestrictionMessageComponent from "@/components/TimeRestriction/RestrictionMessageComponent.vue";
 
 import { useUserStore } from "@/stores/user";
 import { storeToRefs } from "pinia";
-import { onMounted, onUnmounted, ref } from "vue";
+import { onBeforeMount, onBeforeUnmount, ref } from "vue";
 import { useTimeStore } from "../stores/timeTrack";
 
 interface PeopleViewMenuOptions {
     name: "Following" | "Followers" | "Requests" | "Search"
 }
 
+const { startTimeTracking, endTimeTracking } = useTimeStore();
+const { currentUsername, isLoggedIn } = storeToRefs(useUserStore());
+const { timeUsed, restriction } = storeToRefs(useTimeStore());
+
+const showWarning = ref(true);
+var interval: NodeJS.Timeout;
+
 // need to remember current option to display
 let selectedOption = ref<PeopleViewMenuOptions>({name:"Following"});
+
+const changeWarning = (value: boolean) => {
+  showWarning.value = value
+}
 
 const handleMenuOption = (option: PeopleViewMenuOptions) => {
     selectedOption.value = option;
 }
 
-const { startTimeTracking, endTimeTracking } = useTimeStore();
-const { currentUsername, isLoggedIn } = storeToRefs(useUserStore());
-var interval: NodeJS.Timeout;
-
-
-
-onMounted(async () => {
+onBeforeMount(async () => {
     try {
-        interval = await startTimeTracking(currentUsername.value, "People")
-    } catch (e) {
-        console.log(e)
-    }
+        interval = await startTimeTracking(currentUsername.value, "People"); 
+        showWarning.value = timeUsed.value >= restriction.value 
+        console.log("After mount: Time: " + timeUsed.value + "Restrict: " + restriction.value)
+  } catch (e) {
+        console.log(e);
+  }
 });
 
-onUnmounted( async () => {
+onBeforeUnmount( async () => {
     try {
         await endTimeTracking(interval, currentUsername.value, "People")
     } catch (e) {
@@ -47,7 +55,8 @@ onUnmounted( async () => {
 
 
 <template>
-    <div class="people-view">
+    <RestrictionMessageComponent v-if="showWarning" @notify-monitor="changeWarning"/>
+    <div class="people-view" v-else>
         <nav>
             <h1>People</h1>
             <SidebarComponent @set-menu-option="handleMenuOption" :options="[

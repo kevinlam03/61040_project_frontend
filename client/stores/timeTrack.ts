@@ -13,7 +13,8 @@ export const useTimeStore = defineStore(
     const minRestriction = computed(() => convertTime(restriction.value).minute)
 
     const resetStore = () => {
-      //currentUsername.value = "";
+      timeUsed.value = 0;
+      restriction.value = 0;
     };
 
     const getScreenTimeData = async (username: string, feature: string) => {
@@ -60,6 +61,7 @@ export const useTimeStore = defineStore(
         try {
           console.log("Attempt to update screentime: " + timeUsed.value)
           await fetchy(`/api/screenTime/${username}/${feature}`, 'POST', { body: { time: timeUsed.value}});
+          //resetStore();
         }
         catch {
           return;
@@ -75,6 +77,7 @@ export const useTimeStore = defineStore(
       getFeatureRestriction,
       startTimeTracking,
       endTimeTracking,
+      resetStore,
     };
   },
   { persist: true },

@@ -20,7 +20,7 @@ export default class TimeRestrictionConcept {
 
     async getRestriction(user: ObjectId, feature: string) {
         const res = await this.restrictions.readOne({ user, feature });
-        return { msg: "restriction found", res: res}
+        return { msg: "", res: res}
     }
 
     async setRestriction(user: ObjectId, feature: string, limit: number) {

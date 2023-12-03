@@ -3,14 +3,14 @@
 import PostListComponent from "@/components/Post/PostListComponent.vue";
 import { useUserStore } from "@/stores/user";
 import { storeToRefs } from "pinia";
-import { onMounted, onUnmounted, ref } from "vue";
+import { onBeforeMount, onBeforeUnmount, ref } from "vue";
 import RestrictionMessageComponent from "../components/TimeRestriction/RestrictionMessageComponent.vue";
 import { useTimeStore } from "../stores/timeTrack";
 
-const { startTimeTracking, endTimeTracking } = useTimeStore();
+const { startTimeTracking, endTimeTracking, resetStore } = useTimeStore();
 const { timeUsed, restriction } = storeToRefs(useTimeStore());
 
-const showWarning = ref(timeUsed >= restriction);
+const showWarning = ref(true);
 const { currentUsername, isLoggedIn } = storeToRefs(useUserStore());
 
 let interval: NodeJS.Timeout;
@@ -19,16 +19,18 @@ const changeWarning = (value: boolean) => {
   showWarning.value = value
 }
 
-onMounted(async () => {
+onBeforeMount(async () => {
   try {
-    interval = await startTimeTracking(currentUsername.value, "Home");  
+    interval = await startTimeTracking(currentUsername.value, "Home"); 
+    showWarning.value = timeUsed.value >= restriction.value 
+    console.log("After mount: Time: " + timeUsed.value + "Restrict: " + restriction.value)
   } catch (e) {
     console.log(e);
   }
   
 });
 
-onUnmounted( async () => {
+onBeforeUnmount( async () => {
   try {
     await endTimeTracking(interval, currentUsername.value, "Home");
   } catch (e) {
@@ -41,6 +43,7 @@ onUnmounted( async () => {
 </script>
 
 <template>
+  <p>{{ showWarning }} {{ restriction }} {{ timeUsed }}</p>
   <RestrictionMessageComponent v-if="showWarning" @notify-monitor="changeWarning"/>
   <main v-else>
     <h1>Home Page</h1>
