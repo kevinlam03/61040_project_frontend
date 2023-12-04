@@ -44,7 +44,6 @@ onBeforeUnmount( async () => {
 </script>
 
 <template>
-  <p>{{ showPopup }} , {{ closedPopup }} {{ restriction }} {{ timeUsed }}</p>
   <RestrictionMessageComponent v-if="showPopup && !closedPopup" @notify-monitor="changeWarning"/>
   <main v-else>
     <h1>Home Page</h1>
